@@ -35,16 +35,14 @@ class GuessWord(object):
         self.masked = masked
     
     def perform_attempt(self, letter):
-        attempt = GuessAttempt(letter)
-        if attempt.is_valid_guess():
-            if attempt.letter.lower() in self.answer.lower():
-                #pdb.set_trace()
-                attempt.hit = True
-                self.unmask_word(attempt)
-                return attempt
-            attempt.miss = True
+            if letter.lower() in self.answer.lower():
+                attempt = GuessAttempt(letter, hit=True)
+                if attempt.is_valid_guess():
+                    self.unmask_word(attempt)
+                else:
+                    attempt = GuessAttempt(letter, miss=True)
             return attempt
-                
+   
     def unmask_word(self, attempt):
         m = list(self.masked)
         for index in range(len(self.answer)):
@@ -83,11 +81,11 @@ class HangmanGame(object):
         return random.choice(list_of_words)
         
     def is_finished(self):
-        if is_won() or is_lost() or self.remaining_misses <= 0:
+        if self.is_won() or self.is_lost() or self.remaining_misses <= 0:
             raise GameFinishedException()
         
     def is_won(self):
-        if self.word.lower() == self.masked_word.lower():
+        if self.word.answer.lower() == self.word.masked.lower():
             raise GameWonException()
         return False
         
